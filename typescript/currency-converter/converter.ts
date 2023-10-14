@@ -1,4 +1,5 @@
 import axios from "axios";
+import { format } from "./formatter";
 
 /**
  * Converts currencies using exchange rates from a free service.
@@ -6,7 +7,7 @@ import axios from "axios";
  * @param toCurrency The currency to convert to.
  * @returns The converted value in the following structure: { amount: number, date: <time of API call> }.
  */
-export async function convertCurrency(fromCurrency: string, toCurrency: string): Promise<{ amount: number, date: string }> {
+export async function currencyConvert(fromCurrency: string, toCurrency: string): Promise<{ amount: number, date: string }> {
   try {
     // Fetch exchange rate from a free service
     const response = await axios.get(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`);
@@ -15,7 +16,7 @@ export async function convertCurrency(fromCurrency: string, toCurrency: string):
     // Perform the conversion
     const convertedValue = 1 / exchangeRate;
 
-    return { amount: convertedValue, date: new Date().toISOString() };
+    return format({ value: convertedValue.toString() });
   } catch (error) {
     console.error("An error occurred while converting currencies:", error);
     throw error;

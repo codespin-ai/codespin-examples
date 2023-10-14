@@ -1,3 +1,4 @@
+import path from "path";
 export default async function generate(args) {
     if (args.promptDiff) {
         return withPromptDiff(args);
@@ -17,7 +18,7 @@ function withPromptDiff(args) {
         argsHasPreviousPrompt(args) &&
         args.sourceFile.previousContents) {
         const argsWithSource = args;
-        return (printLine(`The following prompt (with line numbers added) was used to generate source code for the file ${args.sourceFile?.name} provided later.`, true) +
+        return (printLine(`The following prompt (with line numbers added) was used to generate source code for the file ${relativePath(args.sourceFile?.path)} provided later.`, true) +
             printPreviousPrompt(args, true) +
             printSourceFile(argsWithSource, false, true) +
             printDeclarations(args) +
@@ -29,7 +30,7 @@ function withPromptDiff(args) {
     }
     else {
         return ((args.targetFilePath
-            ? printLine(`From the following prompt (enclosed between "-----"), generate source code for the file ${args.targetFilePath}.`, true) + printLine("-----", true)
+            ? printLine(`From the following prompt (enclosed between "-----"), generate source code for the file ${relativePath(args.targetFilePath)}.`, true) + printLine("-----", true)
             : "") +
             printPrompt(args, false) +
             printLine("-----", true) +
@@ -40,7 +41,7 @@ function withPromptDiff(args) {
 }
 function withoutPromptDiff(args) {
     return ((args.targetFilePath
-        ? printLine(`From the following prompt (enclosed between "-----"), generate source code for the file ${args.targetFilePath}.`, true) + printLine("-----", true)
+        ? printLine(`From the following prompt (enclosed between "-----"), generate source code for the file ${relativePath(args.targetFilePath)}.`, true) + printLine("-----", true)
         : "") +
         printPrompt(args, false) +
         printLine("-----", true) +
@@ -56,6 +57,9 @@ function printLine(line, addBlankLine = false) {
 function printPrompt(args, useLineNumbers) {
     return printLine(useLineNumbers ? args.promptWithLineNumbers : args.prompt, true);
 }
+function relativePath(filePath) {
+    return path.relative(process.cwd(), filePath);
+}
 function printPreviousPrompt(args, useLineNumbers) {
     return printLine(useLineNumbers ? args.previousPromptWithLineNumbers : args.previousPrompt, true);
 }
@@ -64,7 +68,7 @@ function printPromptDiff(args) {
 }
 function printFileTemplate(args) {
     const filePath = args.targetFilePath
-        ? args.targetFilePath
+        ? relativePath(args.targetFilePath)
         : "./some/path/filename.ext";
     const tmpl = `
   Respond with just the code (but exclude invocation examples etc) in the following format:
@@ -80,8 +84,8 @@ function printFileTemplate(args) {
 }
 function printSourceFile(args, useLineNumbers, usePrevious) {
     const text = printLine(usePrevious
-        ? `Here is the previous code for ${args.sourceFile.name}${useLineNumbers ? " with line numbers" : ""}`
-        : `Here is the code for ${args.sourceFile.name}${useLineNumbers ? " with line numbers" : ""}`) +
+        ? `Here is the previous code for ${relativePath(args.sourceFile.path)}${useLineNumbers ? " with line numbers" : ""}`
+        : `Here is the code for ${relativePath(args.sourceFile.path)}${useLineNumbers ? " with line numbers" : ""}`) +
         printLine("```") +
         printLine(usePrevious
             ? useLineNumbers
@@ -100,7 +104,7 @@ function printDeclarations(args) {
     }
     else {
         const text = "I'm also adding relevant declarations for external dependencies so that you understand the code better.\n\n" +
-            args.declarations.map((file) => printLine(`Declarations for ${file.name}:`) +
+            args.declarations.map((file) => printLine(`Declarations for ${relativePath(file.path)}:`) +
                 printLine("```") +
                 printLine(file.declarations) +
                 printLine("```", true));
@@ -113,7 +117,7 @@ function printIncludeFiles(args, useLineNumbers, usePrevious) {
     }
     else {
         const text = "Additionally, I've added some relevant external files to help you understand the context better.\n\n" +
-            args.files.map((file) => printLine(`Source code for ${file.name}:`) +
+            args.files.map((file) => printLine(`Source code for ${relativePath(file.path)}:`) +
                 printLine("```") +
                 printLine(usePrevious
                     ? useLineNumbers

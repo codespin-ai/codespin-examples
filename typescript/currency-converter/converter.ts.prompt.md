@@ -3,7 +3,7 @@ declare:
   - formatter.ts
 ---
 
-Generate a file which exports a function that converts currencies.
+Generate a file which exports a function (named currencyConvert) that converts currencies.
 
 Here are the arguments:
 - The first parameter is the from currency

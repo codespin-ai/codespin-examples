@@ -1,0 +1,3 @@
+e8d0490a77bdf57ac93f03409254511f2d04171db2466d0b87d432b9a044aa08
+
+export function format(args: { value: string }): { amount: string; time: number; }
