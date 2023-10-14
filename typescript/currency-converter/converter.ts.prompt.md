@@ -1,3 +1,8 @@
+---
+declare:
+  - formatter.ts
+---
+
 Generate a file which exports a function that converts currencies.
 
 Here are the arguments:
@@ -6,6 +11,7 @@ Here are the arguments:
 
 How it should work:
 - Choose a free service to find the exchange rate between the two currencies
-- Do the conversion and return the value.
+- Do the conversion with the API and pass the value to format() to retrieve the formatted result
+- Return the result
 
 codespin:include:code-conventions.md
